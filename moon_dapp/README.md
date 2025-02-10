@@ -33,3 +33,7 @@ To build your app for deployment you can run
 ```bash
 pnpm build
 ```
+
+other info --
+1. SDK's -- https://www.npmjs.com/package/@mysten/sui.js/v/0.0.0-experimental-20240508201943
+2. 
