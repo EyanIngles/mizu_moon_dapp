@@ -1,0 +1,14 @@
+[{
+    "packageId": {
+        "devnet": {
+            "id": ""
+        },
+        "testnet": {
+            "id": ""
+        },
+        "mainnet": {
+            "id": ""
+        }
+    }
+}
+]

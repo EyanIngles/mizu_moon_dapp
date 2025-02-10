@@ -9,6 +9,9 @@ import { Theme } from "@radix-ui/themes";
 import App from "./App.tsx";
 import { networkConfig } from "./networkConfig.ts";
 
+import { store } from './redux-store/mainStore.ts'
+import { Provider } from 'react-redux'
+
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -17,7 +20,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
         <SuiClientProvider networks={networkConfig} defaultNetwork="devnet">
           <WalletProvider autoConnect>
+          <Provider store={store}>
             <App />
+            </Provider>
           </WalletProvider>
         </SuiClientProvider>
       </QueryClientProvider>

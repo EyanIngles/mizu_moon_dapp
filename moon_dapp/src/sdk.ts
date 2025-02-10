@@ -6,7 +6,7 @@ const { execSync } = require('child_process');
 // Generate a new Ed25519 Keypair
 const keypair = new Ed25519Keypair();
 const client = new SuiClient({
-	url: getFullnodeUrl('testnet'),
+	url: getFullnodeUrl('devnet'),
 });
 const { modules, dependencies } = JSON.parse(
 	execSync(`${cliPath} move build --dump-bytecode-as-base64 --path ${packagePath}`, {
