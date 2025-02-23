@@ -12,3 +12,5 @@ export const store = configureStore({
         serializableCheck: false
     })
 })
+
+export type RootState = ReturnType<typeof store.getState>;

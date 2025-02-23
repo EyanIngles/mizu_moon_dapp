@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300">
+  <defs>
+    <!-- Background gradient from deep blue to midnight purple -->
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#141E30"/>
+      <stop offset="100%" stop-color="#243B55"/>
+    </linearGradient>
+
+    <!-- Neon text gradient -->
+    <linearGradient id="textGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff0080"/>
+      <stop offset="50%" stop-color="#00ffff"/>
+      <stop offset="100%" stop-color="#ff0080"/>
+    </linearGradient>
+
+    <!-- Neon glow filter for the text -->
+    <filter id="neon">
+      <!-- First, blur the source graphic -->
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <!-- Merge the blur with the original -->
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Radial gradient for the moon element -->
+    <radialGradient id="moonGradient" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFF" />
+      <stop offset="100%" stop-color="#E0E0E0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="300" fill="url(#bgGradient)" />
+
+  <!-- Moon element as a subtle decorative accent -->
+  <circle cx="1000" cy="150" r="80" fill="url(#moonGradient)" opacity="0.3" />
+
+  <!-- Memecoin styled neon text -->
+  <text
+    x="50%"
+    y="50%"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="Helvetica, sans-serif"
+    font-size="80"
+    fill="url(#textGradient)"
+    filter="url(#neon)">
+    mizu moon
+  </text>
+</svg>
