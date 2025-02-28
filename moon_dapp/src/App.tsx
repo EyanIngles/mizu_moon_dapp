@@ -2,15 +2,13 @@ import { ConnectButton } from "@mysten/dapp-kit";
 import { Box, Container, Flex, Heading, Button } from "@radix-ui/themes";
 import { WalletStatus } from "./WalletStatus";
 import { usePublishModule } from "./sdk"
-import { useState } from "react";
+//import { useState } from "react";
 
-import CONFIG from "./sui network/config.json";
-import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
+//import CONFIG from "./sui network/config.json";
+//import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { useSignAndExecuteTransaction, useCurrentAccount } from '@mysten/dapp-kit';
 import { Transaction } from '@mysten/sui/transactions';
-import { bcs } from '@mysten/bcs';
-
-
+//import { bcs } from '@mysten/bcs';
 
 
 
@@ -18,68 +16,37 @@ function App() {
   const { publishModule } = usePublishModule();
   const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
 
-  const [inputValue, setInputValue] = useState("");
+  //const [inputValue, setInputValue] = useState("");
 
+  
+  async function inputHandler() {
 
-  function decodeBytecode(String: string) {
-    preventDefault();
-    try {
-      console.log("start")
-        // Decode Base64 string to a byte array (Uint8Array)
-        const byteArray = Uint8Array.from(atob(String), c => c.charCodeAt(0));
-
-        // Convert to a readable UTF-8 string
-        const decodedText = new TextDecoder("utf-8").decode(byteArray);
-
-        // Extract only printable characters (to remove binary noise)
-        const filteredText = decodedText.replace(/[^ -~]+/g, ""); // Keep only readable ASCII chars
-        window.alert(`filtered text = ${filteredText}`)
-        console.log("filtered text: ", filteredText)
-        return filteredText;
-    } catch (error) {
-        console.error("Error decoding bytecode:", error);
-        return "";
-    }
-}
-
+    console.log("input Handler")
+  }
   async function ChangeMetaData() {
-    const client = new SuiClient({
-      url: getFullnodeUrl('devnet'),
-    });
+    //const client = new SuiClient({
+    //  url: getFullnodeUrl('devnet'),
+    //});
     const tx = new Transaction();
-    const devnetId = CONFIG[0].packageId.devnet.id;
-
-    const originalBytecode = "oRzrCwYAAAAKAQAMAgweAyocBEYIBU5RB58BmQEIuAJgBpgDLQrFAwUMygMtAAoBDAIGAg8CEAIRAAECAAECBwEAAAIADAEAAQIDDAEAAQQEAgAFBQcAAAkAAQABCwEEAQACBwYHAQIDDQsBAQwEDggJAAEDAgUDCgMMAggABwgEAAILAgEIAAsDAQgAAQgFAQsBAQkAAQgABwkAAgoCCgIKAgsBAQgFBwgEAgsDAQkACwIBCQABBggEAQUBCwIBCAACCQAFAQsDAQgADENvaW5NZXRhZGF0YQRNSVpVBk9wdGlvbgtUcmVhc3VyeUNhcAlUeENvbnRleHQDVXJsBGNvaW4PY3JlYXRlX2N1cnJlbmN5C2R1bW15X2ZpZWxkBGluaXQEbWl6dQRub25lBm9wdGlvbg9wdWJsaWNfdHJhbnNmZXIGc2VuZGVyCHRyYW5zZmVyCnR4X2NvbnRleHQDdXJsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCgIDAk1aCgIFBE1penUKAhwbVGhpcyBpcyBNaXp1IGRlZmF1bHQgdG9rZW4uAAIBCAEAAAAAAhULADEJBwAHAQcCOAAKATgBDAIMAwsCCgEuEQQ4AgsDCwEuEQQ4AwIA";
-    // Decode base64 bytecode to binary
-    const oldName = "Mizu"
-    const newName = "Test"
-    let bytecodeBuffer = Buffer.from(originalBytecode, 'base64');
-    let bytecodeString = bytecodeBuffer.toString('utf8');
-
-    // Replace token name in bytecode
-    bytecodeString = bytecodeString.replace(oldName, newName);
-
-    // Convert back to base64
-    const modifiedBytecode = Buffer.from(bytecodeString, 'utf8').toString('base64');
-
-    console.log("below here\n\n",modifiedBytecode)
-
+    //const devnetId = CONFIG[0].packageId.devnet.id;
 
     tx.moveCall({
       package: "0x2",
       module: "coin",
       function: "update_name",
       // treasuryCap, metadata, name,
-      arguments: [tx.object("0x32119b180522a5aa610540e349b8036199955b7256d210884e06f5f61d9e64e9"), 
-        tx.object("0x0ba3691054469ff340abfb2fa809daf88ae0b5c80bf7923cbc6666fe5440151e"), 
-        tx.pure.string("new_name")]
+      arguments: [
+        tx.object("0xafee72f37d3f6432e0258ef4806885aea464356cf9bcce4e439a050b442349a0"), 
+        tx.object("0xe2a2247f8afaf1f06e0a123cfc78751d29e670cc4a2d8430577bed485f71ad9f"),
+        tx.pure.string("new_name")],
+        typeArguments: ["0xb4cd3b43f81795229f7438cae2fcec4b166d795519e2c9d78ff5209faff79239::mizu::MIZU"]
     });
-    tx.setGasBudget(1000000)
+    tx.setGasBudget(10000000)
     //const 
-   // const result = await signAndExecuteTransaction({
-   //   transaction: tx, chain: 'sui:devnet'
-   // });
-    //console.log(result, "result.")
+    const result = await signAndExecuteTransaction({
+      transaction: tx, chain: 'sui:devnet'
+    });
+    console.log(result, "result.")
 
   }
   return (
@@ -110,7 +77,7 @@ function App() {
         >
           <Button onClick={ChangeMetaData}>change metadata</Button> <hr />
           <Button onClick={publishModule}>try new token</Button>
-          <form onSubmit={decodeBytecode => (inputValue)}>
+          <form onSubmit={inputHandler}>
             <input
                 type="text"
                 onChange={(e) => setInputValue(e.target.value)}

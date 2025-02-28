@@ -3,6 +3,7 @@ import { useSignAndExecuteTransaction, useCurrentAccount } from '@mysten/dapp-ki
 import { Transaction } from '@mysten/sui/transactions';
 import { useSelector } from 'react-redux';
 import { RootState } from './redux-store/mainStore';
+import { COIN_MODULE_BYTESCODE, COIN_DEPENDENCIES_BYTESCODE } from './constants/token_module';
 
 export function usePublishModule() {
     const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
@@ -32,11 +33,9 @@ export function usePublishModule() {
 			version: gasCoin.version, // ✅ Ensure `version` is included
 			digest: gasCoin.digest // ✅ Ensure `digest` is included
 		}
-		
 
-        const modules = ["oRzrCwYAAAAKAQAMAgweAyocBEYIBU5RB58BmQEIuAJgBpgDLQrFAwUMygMtAAoBDAIGAg8CEAIRAAECAAECBwEAAAIADAEAAQIDDAEAAQQEAgAFBQcAAAkAAQABCwEEAQACBwYHAQIDDQsBAQwEDggJAAEDAgUDCgMMAggABwgEAAILAgEIAAsDAQgAAQgFAQsBAQkAAQgABwkAAgoCCgIKAgsBAQgFBwgEAgsDAQkACwIBCQABBggEAQUBCwIBCAACCQAFAQsDAQgADENvaW5NZXRhZGF0YQRNSVpVBk9wdGlvbgtUcmVhc3VyeUNhcAlUeENvbnRleHQDVXJsBGNvaW4PY3JlYXRlX2N1cnJlbmN5C2R1bW15X2ZpZWxkBGluaXQEbWl6dQRub25lBm9wdGlvbg9wdWJsaWNfdHJhbnNmZXIGc2VuZGVyCHRyYW5zZmVyCnR4X2NvbnRleHQDdXJsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCgIDAk1aCgIFBE1penUKAhwbVGhpcyBpcyBNaXp1IGRlZmF1bHQgdG9rZW4uAAIBCAEAAAAAAhULADEJBwAHAQcCOAAKATgBDAIMAwsCCgEuEQQ4AgsDCwEuEQQ4AwIA"]
-        const dependencies = ["0x0000000000000000000000000000000000000000000000000000000000000001","0x0000000000000000000000000000000000000000000000000000000000000002"]
-
+        const modules = COIN_MODULE_BYTESCODE 
+        const dependencies = COIN_DEPENDENCIES_BYTESCODE
         try {
             const tx = new Transaction();
 
@@ -46,20 +45,22 @@ export function usePublishModule() {
                 dependencies: dependencies
             });
 
-            console.log("Upgrade Capability:", upgradeCap);
-
             // Transfer upgrade capability only if it exists
             tx.transferObjects([upgradeCap], "0xf1bf11fd80459367c747fd8b6522cc5481162f9ec4478a967cdf5503eaf50ce9");
 
-            tx.setGasBudget(200000000); // Increased gas budget
-            tx.setGasPayment([formattedGasCoin]); // Explicitly setting gas coin
-
-            // Execute the transaction
+            tx.setGasBudget(100000000); // 0.1 sui cap
+            //tx.setGasPayment([formattedGasCoin]); // Explicitly setting gas coin
+             
+            //Execute the transaction
             const result = await signAndExecuteTransaction(
                 { transaction: tx, chain: 'sui:devnet' }
             );
-
-            console.log("Transaction Result:", result);
+            
+           window.alert(`Tx complete. \n digest: ${result.digest}`)
+           console.log(`Tx complete. \n digest: ${result.digest}`)
+           console.log(`Tx complete. \n bytes: ${result.bytes}`)
+           console.log(`Tx complete. \n effects: ${result.effects}`)
+           console.log(`Tx complete. \n sigs: ${result.signature}`)
 
         } catch (error) {
             console.error("Transaction execution failed:", error);
