@@ -9,6 +9,7 @@ import { usePublishModule } from "./sdk"
 import { useSignAndExecuteTransaction, useCurrentAccount } from '@mysten/dapp-kit';
 import { Transaction } from '@mysten/sui/transactions';
 //import { bcs } from '@mysten/bcs';
+import { PACKAGEID, COIN_OBJECTS_ID } from "./constants/token_module";
 
 
 
@@ -18,6 +19,27 @@ function App() {
 
   //const [inputValue, setInputValue] = useState("");
 
+  async function HandoverTokenPermission () {
+    const tx = new Transaction();
+    tx.setGasBudget(10000000)
+
+    tx.moveCall({
+      package: PACKAGEID,
+      module: "create_token",
+      function: "handover_token",
+
+      arguments: [
+        tx.object(COIN_OBJECTS_ID),
+        tx.object("0x6fd890066166aba7722063724d104e357eedbcf56e6fb51bafd6c7896901ee26"), // Treasurey cap
+        tx.object("0xb540442374750c712922ca2ce457bd27e2dae05b1468e2ca4793fd74ef6f6f24") // Metadata 
+      ],
+      typeArguments: ["0x16de166a6caa5300237a06f4875694283416cc30649d1d34cc402aad299bbdd0::Mizu_coin::MIZU_COIN"]
+    });
+    const result = await signAndExecuteTransaction({
+      transaction: tx, chain: 'sui:devnet'
+    })
+    console.log(result.digest);
+  }
   
   async function inputHandler() {
 
@@ -30,17 +52,21 @@ function App() {
     const tx = new Transaction();
     //const devnetId = CONFIG[0].packageId.devnet.id;
 
-    tx.moveCall({
-      package: "0x2",
-      module: "coin",
-      function: "update_name",
+    tx.moveCall({ // this function works!!
+      package: '0x47772402126db00d5ade92994734d8b4a25743df5550f7706f73a16a77fa9206',
+      module: "change_metadata",
+      function: "change_metadata_without_url",
       // treasuryCap, metadata, name,
       arguments: [
-        tx.object("0xafee72f37d3f6432e0258ef4806885aea464356cf9bcce4e439a050b442349a0"), 
-        tx.object("0xe2a2247f8afaf1f06e0a123cfc78751d29e670cc4a2d8430577bed485f71ad9f"),
-        tx.pure.string("new_name")],
-        typeArguments: ["0xb4cd3b43f81795229f7438cae2fcec4b166d795519e2c9d78ff5209faff79239::mizu::MIZU"]
-    });
+        tx.object("0x2cf61423ea66e8d3a0dcd07817525a0049af6bef76590eb50fe24cbc9820a1d4"), 
+        tx.object("0x107a6c3d5bdc1aa4580a0f380752d7859073a8cd9239a9f5afd21c5fba7c684a"),
+        tx.pure.string("new_name"),
+        tx.pure.string("SY"),
+        tx.pure.string("this is a new description test."),
+        tx.pure.string("www.bigDAWg.com")
+      ],
+        typeArguments: ["0x16de166a6caa5300237a06f4875694283416cc30649d1d34cc402aad299bbdd0::Mizu_coin::MIZU_COIN"]
+    }); //symbol: String, description: String, url: String
     tx.setGasBudget(10000000)
     //const 
     const result = await signAndExecuteTransaction({
@@ -76,6 +102,7 @@ function App() {
           style={{ background: "var(--gray-a2)", minHeight: 500 }}
         >
           <Button onClick={ChangeMetaData}>change metadata</Button> <hr />
+          <Button onClick={HandoverTokenPermission}>hand over token permissions</Button> <hr />
           <Button onClick={publishModule}>try new token</Button>
           <form onSubmit={inputHandler}>
             <input

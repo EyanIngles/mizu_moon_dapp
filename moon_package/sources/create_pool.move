@@ -1,7 +1,7 @@
 #[allow(unused_use)]
 module moon_package::create_token {
     
-    // create coins and LP with the value of sui passed through, always allow 1% of the inital tokens to be supplied to the creator.?
+    // create coins and LP with the value of sui passed through, always allow 1% of the initial tokens to be supplied to the creator.?
     use sui::coin::{Self, TreasuryCap, CoinMetadata};
     use sui::package::{UpgradeCap};
     use sui::balance::{Balance};
@@ -11,15 +11,15 @@ module moon_package::create_token {
     use sui::url;
     use sui::sui::{SUI};
 
-    const CONTRACT_HASNT_BEEN_PUBLISHED_OR_WRONG_CHECKER_USED: u64 = 1;
+    //const CONTRACT_HASNT_BEEN_PUBLISHED_OR_WRONG_CHECKER_USED: u64 = 1; // this one isn't going to be needed because of the init function.
     const NOT_ENOUGH_SUI_TO_PERFORM_TRANSACTION: u64 = 2;
+    const THIS_TOKEN_NAME_IS_TAKEN: u64 = 3;
 
     #[allow(missing_phantom)]
     public struct Coin_objects has key, store {
         id: UID,
         metaData: table::Table<String, CoinMetadata<T>>,
         treasuryCap: table::Table<String, TreasuryCap<T>>,
-        upgrade: table::Table<String, UpgradeCap>,
     }
 
     #[allow(missing_phantom)] 
@@ -55,19 +55,32 @@ module moon_package::create_token {
     id: object::new(ctx),
     metaData: table::new<String, CoinMetadata<T>>(ctx),
     treasuryCap: table::new<String, TreasuryCap<T>>(ctx),
-    upgrade: table::new<String, UpgradeCap>(ctx),
 };
 
 // Share the coin_tracker object
         transfer::public_share_object(coin_tracker);
         transfer::public_share_object(init_checker);
     }
+
+    public fun handover_token(coin_objects: &mut Coin_objects, treasuryCap: TreasuryCap<T>, metadata: CoinMetadata<T>){ 
+        // does the object need to be transferred to an object before adding it to the table?
+        let name = metadata.get_name().to_ascii();
+        let name_checker = table::contains(&coin_objects.metaData, name);
+        assert!(name_checker, THIS_TOKEN_NAME_IS_TAKEN); 
+        let object_id = coin_objects.id.to_address();
+        transfer::Receiving
+        //transfer::public_transfer(treasuryCap, object_id);
+        //transfer::public_transfer(metadata, object_id);
+        //table::add(&mut coin_objects.metaData, name, metadata);
+        //table::add(&mut coin_objects.treasuryCap, name, treasuryCap);
+    }
     
     
     #[allow(unused_function)]
     public fun create_pool<T: store, SUI: store>(tracker: &mut Coin_tracker<T,SUI>, 
-    coin_b_coin: &mut coin::Coin<SUI>, amount_of_sui: u64, amount_toMint: u64, metadata: &CoinMetadata<T>, treasuryCap: &mut TreasuryCap<T>, ctx: &mut TxContext):LP<T,SUI>{
-        
+    coin_b_coin: &mut coin::Coin<SUI>, amount_of_sui: u64, amount_toMint: u64, metadata: &CoinMetadata<T>, treasuryCap: &mut TreasuryCap<T>, ctx: &mut TxContext){
+        let sui_coin_amount = coin_b_coin.value();
+        assert!(sui_coin_amount > 0, NOT_ENOUGH_SUI_TO_PERFORM_TRANSACTION);
         let creator = tx_context::sender(ctx);
         // mints token and then turn into balance.
         let coin_mint = mint_tokens(treasuryCap, amount_toMint, ctx);
@@ -91,23 +104,13 @@ module moon_package::create_token {
             current_holders: 0,
             burn_coins: false,
             burn_amount_each_transaction: 0,
-            index, // this needs to be under the next index. be the same same.
+            index, 
         };
+        // uses the current index before adding 1 for the next index pool
+        table::add(&mut tracker.coin_pools, tracker.next_index, pool);
         tracker.next_index = index + 1;
-        pool
     }
 
-    #[allow(unused_variable, lint(self_transfer))]
-    
-    // this should be non public.
-    public fun mint_coin<T>(cap: &mut TreasuryCap<T>, value: u64, ctx: &mut TxContext): coin::Coin<T> {
-        let coin = coin::mint( cap, value, ctx);
-        coin
-    }
-    #[allow(unused_function)]
-    fun burn_token_each_transaction<T>(cap: &mut TreasuryCap<T>, coin: coin::Coin<T>) {
-        coin::burn(cap, coin);
-    }
     // minting token that is non-public
     fun mint_tokens<T>(treasuryCap: &mut TreasuryCap<T>, amount: u64, ctx: &mut TxContext): coin::Coin<T> {
         let coin_mints = coin::mint(treasuryCap, amount, ctx);

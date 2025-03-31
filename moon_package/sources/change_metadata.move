@@ -2,9 +2,7 @@ module moon_package::change_metadata {
 
     use std::string::String;
     use sui::coin::{Self, TreasuryCap, CoinMetadata};
-
-
-
+    
     public entry fun change_metadata_without_url<T>(treasuryCap: &TreasuryCap<T>, metadata: &mut CoinMetadata<T>, name: String, symbol: String, description: String, url: String) {
        let new_symbol = symbol.to_ascii();
        let new_url = url.to_ascii();
